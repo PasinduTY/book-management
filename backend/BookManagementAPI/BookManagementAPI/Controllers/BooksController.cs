@@ -14,7 +14,12 @@ namespace BookManagementAPI.Controllers
         [HttpGet]
         public IActionResult GetBooks()
         {
-            return Ok(books);
+            return Ok(new ApiResponse<List<Book>>
+            {
+                Success = true,
+                Message = "Books retrieved successfully",
+                Data = books
+            });
         }
 
         [HttpPost]
@@ -23,7 +28,12 @@ namespace BookManagementAPI.Controllers
             book.Id = nextId++;
             books.Add(book);
 
-            return CreatedAtAction(nameof(GetBooks), new { id = book.Id }, book);
+            return CreatedAtAction(nameof(GetBooks), new { id = book.Id }, new ApiResponse<Book>
+            {
+                Success = true,
+                Message = "Book added successfully",
+                Data = book
+            });
         }
 
         [HttpPut("{id}")]
@@ -33,7 +43,12 @@ namespace BookManagementAPI.Controllers
 
             if (existingBook == null)
             {
-                return NotFound();
+                return NotFound(new ApiResponse<Book>
+                {
+                    Success = false,
+                    Message = $"Book with ID {id} not found",
+                    Data = null
+                });
             }
 
             existingBook.Title = updatedBook.Title;
@@ -41,7 +56,12 @@ namespace BookManagementAPI.Controllers
             existingBook.Isbn = updatedBook.Isbn;
             existingBook.PublicationDate = updatedBook.PublicationDate;
 
-            return Ok(existingBook);
+            return Ok(new ApiResponse<Book>
+            {
+                Success = true,
+                Message = "Book updated successfully",
+                Data = existingBook
+            });
         }
 
         [HttpDelete("{id}")]
@@ -51,12 +71,22 @@ namespace BookManagementAPI.Controllers
 
             if (book == null)
             {
-                return NotFound();
+                return NotFound(new ApiResponse<Book>
+                {
+                    Success = false,
+                    Message = $"Book with ID {id} not found",
+                    Data = null
+                });
             }
 
             books.Remove(book);
 
-            return NoContent();
+            return Ok(new ApiResponse<Book>
+            {
+                Success = true,
+                Message = "Book deleted successfully",
+                Data = null
+            });
         }
     }
 }
