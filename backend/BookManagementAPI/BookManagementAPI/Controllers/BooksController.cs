@@ -1,4 +1,5 @@
 ﻿using BookManagementAPI.Models;
+using BookManagementAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,8 +9,12 @@ namespace BookManagementAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private static List<Book> books = new List<Book>();
-        private static int nextId = 1;
+        private readonly BookService _bookService;
+
+        public BooksController(BookService bookService)
+        {
+            _bookService = bookService;
+        }
 
         [HttpGet]
         public IActionResult GetBooks()
@@ -18,58 +23,46 @@ namespace BookManagementAPI.Controllers
             {
                 Success = true,
                 Message = "Books retrieved successfully",
-                Data = books
+                Data = _bookService.GetAll()
             });
         }
 
         [HttpPost]
         public IActionResult AddBook(Book book)
         {
-            book.Id = nextId++;
-            books.Add(book);
-
             return CreatedAtAction(nameof(GetBooks), new { id = book.Id }, new ApiResponse<Book>
             {
                 Success = true,
                 Message = "Book added successfully",
-                Data = book
+                Data = _bookService.Add(book)
             });
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, Book updatedBook)
+        public IActionResult UpdateBook(int id, Book book)
         {
-            var existingBook = books.FirstOrDefault(b => b.Id == id);
-
-            if (existingBook == null)
+            var updated = _bookService.Update(id, book);
+            if (updated == null)
             {
-                return NotFound(new ApiResponse<Book>
-                {
-                    Success = false,
-                    Message = $"Book with ID {id} not found",
-                    Data = null
+                return NotFound(new ApiResponse<Book> 
+                { 
+                    Success = false, 
+                    Message = $"Book {id} not found", 
+                    Data = null 
                 });
             }
 
-            existingBook.Title = updatedBook.Title;
-            existingBook.Author = updatedBook.Author;
-            existingBook.Isbn = updatedBook.Isbn;
-            existingBook.PublicationDate = updatedBook.PublicationDate;
-
-            return Ok(new ApiResponse<Book>
-            {
-                Success = true,
-                Message = "Book updated successfully",
-                Data = existingBook
+            return Ok(new ApiResponse<Book> 
+            { Success = true, 
+                Message = "Book updated successfully", 
+                Data = updated 
             });
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
-            var book = books.FirstOrDefault(b => b.Id == id);
-
-            if (book == null)
+            if (!_bookService.Delete(id))
             {
                 return NotFound(new ApiResponse<Book>
                 {
@@ -78,8 +71,6 @@ namespace BookManagementAPI.Controllers
                     Data = null
                 });
             }
-
-            books.Remove(book);
 
             return Ok(new ApiResponse<Book>
             {
