@@ -25,5 +25,14 @@ namespace BookManagementAPI.Controllers
         {
             return Ok(books);
         }
+
+        [HttpPost]
+        public IActionResult AddBook(Book book)
+        {
+            book.Id = books.Count + 1;
+            books.Add(book);
+
+            return CreatedAtAction(nameof(GetBooks), new { id = book.Id }, book);
+        }
     }
 }
