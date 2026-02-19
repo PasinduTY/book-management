@@ -8,17 +8,8 @@ namespace BookManagementAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private static List<Book> books = new List<Book>
-        {
-            new Book
-            {
-                Id = 1,
-                Title = "Harry Potter",
-                Author = "J.K. Rowling",
-                Isbn = "12345",
-                PublicationDate = DateTime.Now
-            }
-        };
+        private static List<Book> books = new List<Book>();
+        private static int nextId = 1;
 
         [HttpGet]
         public IActionResult GetBooks()
@@ -29,7 +20,7 @@ namespace BookManagementAPI.Controllers
         [HttpPost]
         public IActionResult AddBook(Book book)
         {
-            book.Id = books.Count + 1;
+            book.Id = nextId++;
             books.Add(book);
 
             return CreatedAtAction(nameof(GetBooks), new { id = book.Id }, book);
