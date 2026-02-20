@@ -1,1 +1,79 @@
-<p>book-form works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <h3>{{ book() ? 'Edit Book' : 'Add New Book' }}</h3>
+
+  @if (submitError()) {
+    <div role="alert" class="error-message">
+      {{ submitError() }}
+    </div>
+  }
+
+  <div class="form-group">
+    <label for="title">Title</label>
+    <input
+      id="title"
+      type="text"
+      formControlName="title"
+      placeholder="Enter book title"
+      required
+      aria-describedby="titleError"
+    />
+    @if (form.get('title')?.invalid && form.get('title')?.touched) {
+      <span id="titleError" class="error-text"
+        >Title is required and must be at least 2 characters</span
+      >
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="author">Author</label>
+    <input
+      id="author"
+      type="text"
+      formControlName="author"
+      placeholder="Enter author name"
+      required
+      aria-describedby="authorError"
+    />
+    @if (form.get('author')?.invalid && form.get('author')?.touched) {
+      <span id="authorError" class="error-text"
+        >Author is required and must be at least 2 characters</span
+      >
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="isbn">ISBN</label>
+    <input
+      id="isbn"
+      type="text"
+      formControlName="isbn"
+      placeholder="Enter ISBN"
+      required
+      aria-describedby="isbnError"
+    />
+    @if (form.get('isbn')?.invalid && form.get('isbn')?.touched) {
+      <span id="isbnError" class="error-text">ISBN is required</span>
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="publicationDate">Publication Date</label>
+    <input
+      id="publicationDate"
+      type="date"
+      formControlName="publicationDate"
+      required
+      aria-describedby="dateError"
+    />
+    @if (form.get('publicationDate')?.invalid && form.get('publicationDate')?.touched) {
+      <span id="dateError" class="error-text">Publication date is required</span>
+    }
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Saving...' : book() ? 'Update Book' : 'Add Book' }}
+    </button>
+    <button type="button" (click)="onCancel()" [disabled]="isSubmitting()">Cancel</button>
+  </div>
+</form>

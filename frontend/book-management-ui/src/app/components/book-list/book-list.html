@@ -1,1 +1,59 @@
-<p>book-list works!</p>
+<h2>Book List</h2>
+
+<div class="actions">
+  <button type="button" (click)="startAdd()" [disabled]="isEditing() || isAdding()">
+    Add Book
+  </button>
+</div>
+
+@if (isAdding()) {
+  <app-book-form (bookAdded)="finishAdd()" (cancelled)="finishAdd()"></app-book-form>
+}
+
+@if (isEditing()) {
+  <app-book-form
+    [book]="selectedBook()"
+    (bookAdded)="finishEdit()"
+    (cancelled)="cancelEdit()"
+  ></app-book-form>
+}
+
+@if (books() === null) {
+  <div>Loading books...</div>
+} @else if (error()) {
+  <div role="alert">{{ error() }}</div>
+} @else if (books()!.length > 0) {
+  <div class="table-wrapper">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>ISBN</th>
+          <th>Publication Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (book of books(); track book.id) {
+          <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.publicationDate | date }}</td>
+            <td>
+              <button (click)="editBook(book.id)" [disabled]="isEditing() || isAdding()">
+                Edit
+              </button>
+              <button (click)="deleteBook(book.id)" [disabled]="isEditing() || isAdding()">
+                Delete
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else if (!isAdding() && !isEditing()) {
+  <div>No books found.</div>
+}
